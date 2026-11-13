@@ -1,0 +1,26 @@
+# Company audit file for aeo-audit.
+# Fill in every field, then run:  aeo-audit queries {slug}
+#
+# Tips
+# - aliases: product names, former names and common abbreviations people use.
+# - Use plain domains without https:// (example.com).
+# - ambiguous (optional, per brand): set true if the name is a common word
+#   (like "Ramp"), false to turn the common-word guard off. Leave it out to auto-detect.
+
+company_name: "Your Company"
+domain: "yourcompany.com"
+aliases: []
+
+category: "treasury management software"
+target_buyer: "CFOs at mid-market companies"
+
+competitors:            # 2 or 3 entries
+  - name: "Competitor One"
+    domain: "competitorone.com"
+    aliases: []
+  - name: "Competitor Two"
+    domain: "competitortwo.com"
+    aliases: []
+
+runs_per_query: 3       # 1 to 5. Each question is asked this many times per engine.
+query_count: 20         # number of buyer questions to generate (5 to 50)

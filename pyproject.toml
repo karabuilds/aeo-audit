@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aeo-audit"
+version = "0.1.0"
+description = "Measure how often a brand appears in AI-generated answers compared with its competitors, and produce a one-page report."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Kara Hartnett" }]
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12",
+    "rich>=13.7",
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "tenacity>=8.2",
+    "tldextract>=5.1",
+    "wordfreq>=3.1",
+    "jinja2>=3.1",
+    "openai>=3.0",
+    "anthropic>=2.0",
+    "google-genai>=3.0",
+    "perplexityai>=0.40",
+]
+
+[project.optional-dependencies]
+pdf = ["playwright>=1.48"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "types-PyYAML",
+]
+
+[project.scripts]
+aeo-audit = "aeo_audit.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aeo_audit"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+files = ["src/aeo_audit"]
+
+[[tool.mypy.overrides]]
+module = ["tldextract.*", "wordfreq.*", "google.*", "perplexity.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::SyntaxWarning", "ignore::DeprecationWarning"]

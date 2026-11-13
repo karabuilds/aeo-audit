@@ -1,0 +1,5 @@
+# Report appearance and safety settings.
+accent_color: "#0F766E"     # dark teal
+font_family: "Inter, 'Helvetica Neue', Arial, sans-serif"
+page_size: Letter
+budget_cap_usd: 5.00        # runs refuse to start above this estimate and stop if actual cost reaches it
