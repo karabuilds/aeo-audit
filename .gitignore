@@ -26,3 +26,9 @@ htmlcov/
 .DS_Store
 .idea/
 .vscode/
+
+# Real company audits stay private. Only the fictional sample is published.
+companies/*
+!companies/ledgerly.yaml
+!companies/ledgerly.queries.yaml
+!companies/.gitkeep
