@@ -69,6 +69,10 @@ class Brand(_Strict):
         default=None,
         description="Force the common-word guard on (true) or off (false). Auto-detected if unset.",
     )
+    not_aliases: list[str] = Field(
+        default_factory=list,
+        description="Terms that must never count as a mention of this brand.",
+    )
 
     @field_validator("domain")
     @classmethod
@@ -78,14 +82,42 @@ class Brand(_Strict):
             raise ValueError(f"'{v}' is not a valid domain (example: example.com)")
         return d
 
-    @field_validator("aliases")
+    @field_validator("aliases", "not_aliases")
     @classmethod
     def _aliases(cls, v: list[str]) -> list[str]:
         return _clean_aliases(v)
 
+    @model_validator(mode="after")
+    def _no_overlap(self) -> Brand:
+        banned = {t.lower() for t in self.not_aliases}
+        clash = [t for t in self.all_terms() if t.lower() in banned]
+        if clash:
+            raise ValueError(
+                f"'{clash[0]}' is listed in both the name/aliases and not_aliases of {self.name}"
+            )
+        return self
+
     def all_terms(self) -> list[str]:
         """Name plus aliases, without duplicates."""
         return _clean_aliases([self.name, *self.aliases])
+
+
+class QueryTopic(_Strict):
+    """A topic to weight question generation toward."""
+
+    topic: str = Field(min_length=2, max_length=80)
+    weight: float = Field(gt=0, le=1)
+
+
+def allocate_counts(weights: list[float], total: int) -> list[int]:
+    """Split `total` items across weights using the largest-remainder method."""
+    s = sum(weights)
+    raw = [w / s * total for w in weights]
+    counts = [int(r) for r in raw]
+    order = sorted(range(len(raw)), key=lambda i: (raw[i] - counts[i], weights[i]), reverse=True)
+    for i in order[: total - sum(counts)]:
+        counts[i] += 1
+    return counts
 
 
 class CompanyConfig(_Strict):
@@ -95,11 +127,14 @@ class CompanyConfig(_Strict):
     domain: str
     aliases: list[str] = Field(default_factory=list)
     ambiguous: bool | None = None
+    not_aliases: list[str] = Field(default_factory=list)
     category: str = Field(min_length=3, max_length=120)
     target_buyer: str = Field(min_length=3, max_length=160)
     competitors: list[Brand] = Field(min_length=2, max_length=3)
     runs_per_query: int = Field(default=3, ge=1, le=5)
     query_count: int = Field(default=20, ge=5, le=50)
+    query_topics: list[QueryTopic] = Field(default_factory=list)
+    query_guidance: str | None = Field(default=None, max_length=1000)
     fictional: bool = Field(
         default=False,
         description="True only for the invented sample company. Mock mode requires it.",
@@ -110,10 +145,30 @@ class CompanyConfig(_Strict):
     def _domain(cls, v: str) -> str:
         return Brand._domain(v)
 
-    @field_validator("aliases")
+    @field_validator("aliases", "not_aliases")
     @classmethod
     def _aliases(cls, v: list[str]) -> list[str]:
         return _clean_aliases(v)
+
+    @model_validator(mode="after")
+    def _topic_weights(self) -> CompanyConfig:
+        if self.query_topics:
+            total = sum(t.weight for t in self.query_topics)
+            if abs(total - 1.0) > 0.01:
+                raise ValueError(
+                    f"query_topics weights must add up to 1.0 (they add up to {total:.2f})"
+                )
+            names = [t.topic.lower() for t in self.query_topics]
+            if len(set(names)) != len(names):
+                raise ValueError("each query topic must be listed only once")
+        return self
+
+    def topic_counts(self) -> list[tuple[str, int]]:
+        """How many questions to generate per topic. Empty when no topics are set."""
+        if not self.query_topics:
+            return []
+        counts = allocate_counts([t.weight for t in self.query_topics], self.query_count)
+        return [(t.topic, c) for t, c in zip(self.query_topics, counts, strict=True)]
 
     @model_validator(mode="after")
     def _unique_brands(self) -> CompanyConfig:
@@ -142,6 +197,7 @@ class CompanyConfig(_Strict):
             domain=self.domain,
             aliases=self.aliases,
             ambiguous=self.ambiguous,
+            not_aliases=self.not_aliases,
         )
 
     def brands(self) -> list[Brand]:
@@ -154,7 +210,6 @@ class CompanyConfig(_Strict):
         for b in self.brands():
             terms.extend(b.all_terms())
             terms.append(b.domain)
-            terms.append(b.domain.split(".")[0])
         return _clean_aliases(terms)
 
 

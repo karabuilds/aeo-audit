@@ -188,3 +188,39 @@ def test_init_refuses_to_overwrite(project: Path) -> None:
     runner.invoke(app, ["init", "acme", "--root", str(project)])
     result = runner.invoke(app, ["init", "acme", "--root", str(project)])
     assert result.exit_code == 1
+
+
+def test_query_topic_weights_must_sum_to_one(project: Path) -> None:
+    data = copy.deepcopy(VALID_COMPANY)
+    data["query_topics"] = [{"topic": "banking", "weight": 0.5}, {"topic": "credit", "weight": 0.2}]
+    assert any("add up to 1.0" in p for p in _problems(project, data))
+
+
+def test_topic_counts_respect_weights(project: Path) -> None:
+    data = copy.deepcopy(VALID_COMPANY)
+    data["query_topics"] = [
+        {"topic": "no-fee banking", "weight": 0.30},
+        {"topic": "cash back credit cards", "weight": 0.30},
+        {"topic": "credit building", "weight": 0.25},
+        {"topic": "crypto", "weight": 0.075},
+        {"topic": "buy now, pay later", "weight": 0.075},
+    ]
+    write_company(project, "acme", data)
+    counts = dict(load_company("acme", ProjectPaths(project)).topic_counts())
+    assert sum(counts.values()) == 20
+    assert counts["crypto"] + counts["buy now, pay later"] <= 4  # at most 20%
+
+
+def test_alias_cannot_also_be_a_not_alias(project: Path) -> None:
+    data = copy.deepcopy(VALID_COMPANY)
+    data["not_aliases"] = ["Ledgerly TMS"]
+    assert any("not_aliases" in p for p in _problems(project, data))
+
+
+def test_forbidden_terms_do_not_include_domain_fragments(project: Path) -> None:
+    data = copy.deepcopy(VALID_COMPANY)
+    data["competitors"][0] = {"name": "Cash App", "domain": "cash.app", "aliases": []}
+    write_company(project, "acme", data)
+    terms = {t.lower() for t in load_company("acme", ProjectPaths(project)).forbidden_terms()}
+    assert "cash" not in terms  # otherwise "cash back" questions would be rejected
+    assert "cash.app" in terms
