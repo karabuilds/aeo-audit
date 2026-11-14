@@ -25,6 +25,9 @@ engines:
       max_searches_per_call: 2        # sent as max_tool_calls
     concurrency: 6
     timeout_seconds: 90
+    options:
+      reasoning_effort: low           # supported: none, low, medium (default), high, xhigh, max
+      max_output_tokens: 4000
     pricing:
       input_per_mtok: 0.10
       output_per_mtok: 0.50
@@ -49,6 +52,8 @@ engines:
       max_searches_per_call: 2        # sent as max_uses
     concurrency: 5
     timeout_seconds: 120
+    options:
+      max_tokens: 4000
     pricing:
       input_per_mtok: 0.10            # prompts up to 100,000 tokens
       output_per_mtok: 0.50

@@ -260,6 +260,7 @@ class EngineSettings(_Strict):
     search: SearchSettings
     concurrency: int = Field(default=4, ge=1, le=32)
     timeout_seconds: float = Field(default=90, gt=0, le=600)
+    options: dict[str, Any] = Field(default_factory=dict)
     pricing: Pricing
     estimate: Estimate
 
