@@ -32,3 +32,6 @@ companies/*
 !companies/ledgerly.yaml
 !companies/ledgerly.queries.yaml
 !companies/.gitkeep
+
+# Private author details (for example an email address on reports you send)
+config/*.local.yaml

@@ -301,7 +301,7 @@ class EnginesConfig(_Strict):
 
 class AuthorConfig(_Strict):
     name: str = Field(min_length=1)
-    email: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    email: str | None = Field(default=None, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     linkedin: str = Field(pattern=r"^https://(www\.)?linkedin\.com/")
 
 
@@ -408,8 +408,18 @@ def load_engines(paths: ProjectPaths) -> EnginesConfig:
 
 
 def load_author(paths: ProjectPaths) -> AuthorConfig:
+    """config/author.yaml, with private overrides from config/author.local.yaml if present.
+
+    author.local.yaml is gitignored, so details like an email address can appear on
+    reports you send without being published in the repository.
+    """
     label = "config/author.yaml"
-    return _validate(AuthorConfig, _read_yaml(paths.config_dir / "author.yaml", label), label)
+    data = _read_yaml(paths.config_dir / "author.yaml", label)
+    local = paths.config_dir / "author.local.yaml"
+    if local.exists():
+        data.update(_read_yaml(local, "config/author.local.yaml"))
+        label = "config/author.yaml + config/author.local.yaml"
+    return _validate(AuthorConfig, data, label)
 
 
 def load_report_config(paths: ProjectPaths) -> ReportConfig:

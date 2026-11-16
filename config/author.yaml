@@ -1,3 +1,6 @@
 # Shown in the report header and footer.
+# This file is public. To show an email address on reports you send without
+# publishing it, put it in config/author.local.yaml (gitignored), for example:
+#   email: you@example.com
 name: Kara Hartnett
 linkedin: https://www.linkedin.com/in/kara-hartnett/

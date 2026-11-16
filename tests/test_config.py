@@ -224,3 +224,19 @@ def test_forbidden_terms_do_not_include_domain_fragments(project: Path) -> None:
     terms = {t.lower() for t in load_company("acme", ProjectPaths(project)).forbidden_terms()}
     assert "cash" not in terms  # otherwise "cash back" questions would be rejected
     assert "cash.app" in terms
+
+
+def test_author_email_is_optional_and_private_override_applies(project: Path) -> None:
+    paths = ProjectPaths(project)
+    (project / "config" / "author.local.yaml").unlink(missing_ok=True)
+    assert load_author(paths).email is None
+    (project / "config" / "author.local.yaml").write_text("email: kara@example.com\n")
+    assert load_author(paths).email == "kara@example.com"
+
+
+def test_public_author_file_has_no_email() -> None:
+    from tests.conftest import REPO_ROOT
+
+    assert "email:" not in (REPO_ROOT / "config" / "author.yaml").read_text().split("#   email")[
+        0
+    ].replace("# ", "")
