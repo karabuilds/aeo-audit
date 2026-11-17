@@ -88,3 +88,10 @@ def test_bad_intent_rejected(tmp_path: Path) -> None:
     path.write_text(path.read_text().replace("intent: problem", "intent: vibes"))
     with pytest.raises(ConfigError):
         load_queries(path)
+
+
+def test_prefixed_key_takes_priority(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "assistant-account-key")
+    monkeypatch.setenv("AEO_ANTHROPIC_API_KEY", "audit-key")
+    assert load_keys(tmp_path)["ANTHROPIC_API_KEY"] == "audit-key"
+    assert "AEO_ANTHROPIC_API_KEY" not in load_keys(tmp_path)

@@ -30,16 +30,25 @@ class EngineSelection:
     skipped: dict[str, str] = field(default_factory=dict)  # engine name -> reason
 
 
+PREFIX = "AEO_"
+
+
 def load_keys(root: Path) -> dict[str, str]:
-    """API keys from the environment first, then from <root>/.env. Values are never printed."""
+    """API keys from <root>/.env, then the environment. Values are never printed.
+
+    An AEO_-prefixed variable (for example AEO_ANTHROPIC_API_KEY) takes priority over the
+    plain name. Use it where the plain name is already used by another tool, such as an
+    AI coding assistant that reads ANTHROPIC_API_KEY for its own account.
+    """
     file_values = dotenv_values(root / ".env") if (root / ".env").exists() else {}
+    sources = [*file_values.items(), *os.environ.items()]
     keys: dict[str, str] = {}
-    for name, value in file_values.items():
-        if value:
+    for name, value in sources:
+        if value and name.endswith("_API_KEY") and not name.startswith(PREFIX):
             keys[name] = value
-    for name, value in os.environ.items():
-        if name.endswith("_API_KEY") and value:
-            keys[name] = value
+    for name, value in sources:
+        if value and name.endswith("_API_KEY") and name.startswith(PREFIX):
+            keys[name.removeprefix(PREFIX)] = value
     return keys
 
 
