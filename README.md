@@ -123,8 +123,8 @@ Limitations, stated plainly:
 - [x] Engine adapters for OpenAI, Anthropic, Gemini and Perplexity
 - [x] Runner with caching, resume, retries, cost estimates and a budget cap
 - [x] Buyer question generation with brand-name checks and human approval
-- [ ] Findings and quick wins, with automated number validation
-- [ ] Writing-rule checks that fail the build on violations
+- [x] Findings and quick wins, with automated number validation
+- [x] Writing-rule checks that fail the build on violations
 - [ ] One-page HTML and PDF report, plus outreach message
 - [ ] Sample audit for a fictional company, with screenshot
 

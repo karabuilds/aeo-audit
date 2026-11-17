@@ -23,3 +23,5 @@ jobs:
         run: mypy
       - name: Tests
         run: pytest -q
+      - name: Writing rules
+        run: aeo-audit check-text README.md $(find samples -type f \( -name '*.html' -o -name '*.txt' -o -name '*.md' \) 2>/dev/null)

@@ -15,6 +15,7 @@ from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn, T
 from rich.table import Table
 
 from aeo_audit import __version__
+from aeo_audit.checks.style import check_file
 from aeo_audit.config import ConfigError, load_company, load_engines, load_report_config
 from aeo_audit.cost import EngineEstimate, estimate_engine, helper_estimate
 from aeo_audit.engines.registry import build_engines, load_keys, parse_engine_list
@@ -395,3 +396,26 @@ def queries(
         f"{qpath}.\nWhen you are happy with the list, run:\n"
         f"  [bold]aeo-audit run {slug} --approve[/]"
     )
+
+
+# ------------------------------------------------------------------ check-text
+
+
+@app.command("check-text")
+def check_text(
+    files: Annotated[
+        list[Path], typer.Argument(help="Files to check (Markdown, HTML or plain text).")
+    ],
+) -> None:
+    """Check files against the writing rules: no em dashes, no banned hype words."""
+    total = 0
+    for path in files:
+        if not path.exists():
+            raise _fail(f"{path} does not exist")
+        violations = check_file(path)
+        total += len(violations)
+        for v in violations:
+            err_console.print(f"[red]{v.describe(str(path))}[/]")
+    if total:
+        raise _fail(f"{total} writing-rule violation(s) found.")
+    console.print(f"[green]Writing rules passed[/] for {len(files)} file(s).")
