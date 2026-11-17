@@ -16,14 +16,21 @@ from rich.table import Table
 
 from aeo_audit import __version__
 from aeo_audit.checks.style import check_file
-from aeo_audit.config import ConfigError, load_company, load_engines, load_report_config
+from aeo_audit.config import (
+    ConfigError,
+    load_author,
+    load_company,
+    load_engines,
+    load_report_config,
+)
 from aeo_audit.cost import EngineEstimate, estimate_engine, helper_estimate
 from aeo_audit.engines.registry import build_engines, load_keys, parse_engine_list
 from aeo_audit.llm import ClaudeJSON, JSONModel, LLMError
 from aeo_audit.paths import ProjectPaths, validate_slug
 from aeo_audit.queries import approve, load_queries, save_queries
 from aeo_audit.querygen import QueryGenerationError, TemplateQuestionModel, generate_queries
-from aeo_audit.runner import execute, find_or_create_run, plan_jobs
+from aeo_audit.reporting import ReportError, build_report
+from aeo_audit.runner import execute, find_or_create_run, latest_complete_run, plan_jobs
 
 app = typer.Typer(
     name="aeo-audit",
@@ -419,3 +426,95 @@ def check_text(
     if total:
         raise _fail(f"{total} writing-rule violation(s) found.")
     console.print(f"[green]Writing rules passed[/] for {len(files)} file(s).")
+
+
+# ------------------------------------------------------------------ report
+
+
+@app.command()
+def report(
+    slug: Annotated[str, typer.Argument(help="Company slug, for example acme-treasury.")],
+    date: Annotated[
+        str | None,
+        typer.Option(
+            "--date",
+            help="Run folder to use, for example 2026-11-17. Defaults to the latest complete run.",
+        ),
+    ] = None,
+    no_pdf: Annotated[bool, typer.Option("--no-pdf", help="Write the HTML report only.")] = False,
+    root: RootOption = None,
+) -> None:
+    """Build metrics.json, findings and the one-page report from saved results. No engine calls."""
+    paths = ProjectPaths.discover(root)
+    try:
+        company = load_company(slug, paths)
+        engines_cfg = load_engines(paths)
+        report_cfg = load_report_config(paths)
+        author = load_author(paths)
+        qf = load_queries(paths.queries_file(slug))
+    except ConfigError as exc:
+        raise _config_fail(exc) from exc
+    store = latest_complete_run(paths.company_output_dir(slug), date)
+    if store is None:
+        where = f"for {date}" if date else "yet"
+        raise _fail(f"No complete run {where}. Run: aeo-audit run {slug} --approve")
+    console.print(f"Building the report from {store.folder.name}...")
+    try:
+        out = build_report(
+            store=store,
+            company=company,
+            queries=qf.queries,
+            engines_cfg=engines_cfg,
+            author=author,
+            report_cfg=report_cfg,
+            keys={} if store.manifest().get("mock") else load_keys(paths.root),
+            make_pdf=not no_pdf,
+        )
+    except ReportError as exc:
+        err_console.print(f"[bold red]Report stopped:[/] {exc}")
+        for p in exc.problems:
+            err_console.print(f"  - {p}")
+        raise typer.Exit(4) from exc
+    console.print(f"[green]metrics.json[/]  {out.metrics_path}")
+    console.print(f"[green]report.html[/]   {out.html_path}")
+    if out.pdf_path:
+        console.print(f"[green]report.pdf[/]    {out.pdf_path} ({out.pdf_pages} page)")
+    elif out.pdf_note:
+        err_console.print(f"[yellow]PDF skipped:[/] {out.pdf_note}")
+    for w in out.warnings:
+        err_console.print(f"[yellow]Warning:[/] {w}")
+    console.print(
+        f"Findings verified against metrics.json in {out.insights.attempts} attempt(s). "
+        "Writing rules passed."
+    )
+
+
+@app.command("all")
+def run_all(
+    slug: Annotated[str, typer.Argument(help="Company slug, for example acme-treasury.")],
+    approve_queries: Annotated[
+        bool, typer.Option("--approve", help="Approve the questions file.")
+    ] = False,
+    yes: Annotated[bool, typer.Option("--yes", "-y", help="Skip the confirmation prompt.")] = False,
+    engines: Annotated[
+        str | None, typer.Option("--engines", help="Comma-separated engines.")
+    ] = None,
+    mock: Annotated[
+        bool, typer.Option("--mock", help="Use saved sample answers. No keys, no cost.")
+    ] = False,
+    no_pdf: Annotated[bool, typer.Option("--no-pdf", help="Write the HTML report only.")] = False,
+    root: RootOption = None,
+) -> None:
+    """Run every approved question, then build the report."""
+    run(
+        slug,
+        approve_queries=approve_queries,
+        dry_run=False,
+        yes=yes,
+        engines=engines,
+        mock=mock,
+        new=False,
+        max_cost=None,
+        root=root,
+    )
+    report(slug, date=None, no_pdf=no_pdf, root=root)

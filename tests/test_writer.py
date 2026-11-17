@@ -1,8 +1,7 @@
-"""Findings, quick wins and outreach: generation, validation and the 3-strike stop."""
+"""Findings and quick wins: generation, validation and the 3-strike stop."""
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 import pytest
@@ -16,7 +15,6 @@ from aeo_audit.writer import (
     WriterError,
     validate_insights,
     write_insights,
-    write_outreach,
 )
 
 CO, A, B = "Ledgerly", "Cashvane", "Treasurio"
@@ -134,23 +132,6 @@ def test_prompt_contains_only_metrics_and_rules() -> None:
     prompt = model.prompts[0]
     assert '"gaps"' in prompt and '"overall"' in prompt
     assert "No em dashes" in prompt and "opportunities" in prompt
-
-
-def test_template_outreach_passes() -> None:
-    message, attempts = write_outreach(METRICS, "Senior Content Marketing Manager role", "Kara Hartnett",
-                                       TemplateWriterModel(METRICS, "Senior Content Marketing Manager role"))  # fmt: skip
-    assert attempts == 1
-    assert "Senior Content Marketing Manager role" in message
-    assert len(message.split()) < 90
-    assert re.search(r"\d", message)
-
-
-def test_outreach_too_long_or_without_numbers_is_rejected() -> None:
-    long_msg = {"message": "word " * 95}
-    with pytest.raises(WriterError) as info:
-        write_outreach(METRICS, "prospect", "Kara", Scripted([long_msg]))
-    assert any("must be under 90" in p for p in info.value.problems)
-    assert any("at least 1 number" in p for p in info.value.problems)
 
 
 def test_template_wording_matches_the_data() -> None:

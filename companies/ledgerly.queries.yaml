@@ -1,0 +1,94 @@
+# Buyer questions for Ledgerly.
+# Review every question. Edit, replace or delete any that a real buyer would not ask.
+# Keep each question free of brand names. Allowed intents:
+#   discovery, problem, comparison, use_case, criteria
+# When you are happy with the list, run:
+#   aeo-audit run ledgerly --approve
+# Approval is tied to the exact questions below. Editing them later requires --approve again.
+company: Ledgerly
+generated_at: '2026-11-17T00:00:00+00:00'
+generator_model: hand-written sample questions
+approved: true
+approved_at: '2026-11-17T03:46:31+00:00'
+approved_hash: fc8375933a0f57a3
+queries:
+- id: q01
+  text: What's a good treasury management tool for a mid-size company?
+  intent: discovery
+  topic: null
+- id: q02
+  text: What treasury software do mid-market finance teams use?
+  intent: discovery
+  topic: null
+- id: q03
+  text: Is there cash management software that's easy to set up?
+  intent: discovery
+  topic: null
+- id: q04
+  text: What's a good alternative to running treasury in spreadsheets?
+  intent: discovery
+  topic: null
+- id: q05
+  text: How do I see cash across all my bank accounts in one place?
+  intent: problem
+  topic: null
+- id: q06
+  text: How can I make our weekly cash forecast less manual?
+  intent: problem
+  topic: null
+- id: q07
+  text: How do I stop errors in bank reconciliation?
+  intent: problem
+  topic: null
+- id: q08
+  text: How can I get better visibility into cash at our subsidiaries?
+  intent: problem
+  topic: null
+- id: q09
+  text: Is it better to use spreadsheets or treasury software for cash forecasting?
+  intent: comparison
+  topic: null
+- id: q10
+  text: Should we use our ERP for treasury or buy a separate tool?
+  intent: comparison
+  topic: null
+- id: q11
+  text: Are cloud treasury tools better than bank portals?
+  intent: comparison
+  topic: null
+- id: q12
+  text: Is a full treasury system overkill for a company our size?
+  intent: comparison
+  topic: null
+- id: q13
+  text: Can treasury software handle payments in several currencies?
+  intent: use_case
+  topic: null
+- id: q14
+  text: What tool can help with cash forecasting for a growing company?
+  intent: use_case
+  topic: null
+- id: q15
+  text: Can I automate bank fee analysis with software?
+  intent: use_case
+  topic: null
+- id: q16
+  text: What helps a small finance team manage cash across many banks?
+  intent: use_case
+  topic: null
+- id: q17
+  text: What should I look for in treasury management software?
+  intent: criteria
+  topic: null
+- id: q18
+  text: Do treasury management systems actually save time?
+  intent: criteria
+  topic: null
+- id: q19
+  text: How do I compare treasury tools on security and integrations?
+  intent: criteria
+  topic: null
+- id: q20
+  text: What questions should I ask treasury software vendors?
+  intent: criteria
+  topic: null

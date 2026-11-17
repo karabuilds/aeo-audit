@@ -1,4 +1,4 @@
-"""Write the 3 findings, 3 quick wins and the outreach message, then verify them.
+"""Write the 3 findings and 3 quick wins, then verify them.
 
 Claude receives only metrics.json (which contains the gap list). Every draft is
 checked for:
@@ -20,7 +20,6 @@ from aeo_audit.checks.style import find_violations
 from aeo_audit.llm import JSONModel, LLMError
 
 MAX_ATTEMPTS = 3
-OUTREACH_MAX_WORDS = 90
 
 WRITING_RULES = """Writing rules (all are checked automatically):
 - Use only numbers that appear in the metrics JSON. Write them with digits, exactly as they
@@ -197,74 +196,6 @@ def write_insights(metrics: dict[str, Any], model: JSONModel, model_name: str) -
     )
 
 
-# ------------------------------------------------------------------ outreach
-
-OUTREACH_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {"message": {"type": "string"}},
-    "required": ["message"],
-    "additionalProperties": False,
-}
-
-
-def outreach_prompt(
-    metrics: dict[str, Any], context: str, author: str, problems: list[str] | None = None
-) -> str:
-    parts = [
-        "Here is metrics.json for an AI search visibility audit:",
-        json.dumps(metrics, indent=1),
-        "",
-        f"Write a LinkedIn message from {author} to someone at the company.",
-        f"Context: {context}",
-        f"- Under {OUTREACH_MAX_WORDS} words.",
-        "- Name the role or context in the first sentence.",
-        "- State ONE specific finding with real numbers from the metrics.",
-        "- Offer to send the one-page snapshot. No sign-off line with contact details.",
-        "",
-        WRITING_RULES,
-    ]
-    if problems:
-        parts += ["", "Your previous draft failed these checks. Fix every one:"]
-        parts += [f"- {p}" for p in problems]
-    return "\n".join(parts)
-
-
-def validate_outreach(message: str, metrics: dict[str, Any]) -> list[str]:
-    problems = _text_problems("outreach", message, metrics)
-    words = len(message.split())
-    if words >= OUTREACH_MAX_WORDS:
-        problems.append(f"outreach: {words} words, must be under {OUTREACH_MAX_WORDS}")
-    if not extract_numbers(message):
-        problems.append("outreach: must include at least 1 number from the metrics")
-    return problems
-
-
-def write_outreach(
-    metrics: dict[str, Any], context: str, author: str, model: JSONModel
-) -> tuple[str, int]:
-    problems: list[str] | None = None
-    last: list[str] = []
-    for attempt in range(1, MAX_ATTEMPTS + 1):
-        try:
-            data = model.generate_json(
-                system=INSIGHTS_SYSTEM,
-                prompt=outreach_prompt(metrics, context, author, problems),
-                schema=OUTREACH_SCHEMA,
-                max_tokens=1500,
-            )
-        except LLMError as exc:
-            problems = last = [str(exc)]
-            continue
-        message = " ".join(str(data.get("message", "")).split())
-        problems = last = validate_outreach(message, metrics)
-        if not problems:
-            return message, attempt
-    raise WriterError(
-        f"The outreach message failed verification {MAX_ATTEMPTS} times. Nothing was written.",
-        last,
-    )
-
-
 # ------------------------------------------------------------------ offline templates
 
 
@@ -288,9 +219,8 @@ class TemplateWriterModel:
     """Offline stand-in for Claude in mock mode. Builds findings from the real metrics,
     so its output passes the same number and writing checks as a Claude draft."""
 
-    def __init__(self, metrics: dict[str, Any], context: str = "prospect") -> None:
+    def __init__(self, metrics: dict[str, Any]) -> None:
         self.m = metrics
-        self.context = context
 
     def _leader(self) -> tuple[str, dict[str, Any]]:
         comps = self.m["competitors"]
@@ -317,21 +247,6 @@ class TemplateWriterModel:
         mr = self.m["overall"][co]["mention_rate"]
         leader, lead = self._leader()
         gap = self._intent_gap()
-        if "message" in schema.get("properties", {}):
-            if gap and gap[3] > gap[1]:
-                fact = (
-                    f"In {INTENT_NAMES.get(gap[0], gap[0])} questions, {co} appears in "
-                    f"{fmt(gap[1])}% of AI answers, while {gap[2]} appears in {fmt(gap[3])}%."
-                )
-            else:
-                fact = f"{co} appears in {fmt(mr['mean'])}% of AI answers to buyer questions."
-            return {
-                "message": (
-                    f"Hi, I'm reaching out about the {self.context}. I ran an AI search "
-                    f"visibility audit of {co}. {fact} I put the results in a one-page "
-                    "snapshot with quick wins. Would you like me to send it?"
-                )
-            }
         top = (self.m.get("top_third_party_domains") or [{}])[0]
         owned = self.m["overall"][co]["owned_citation_rate"]["mean"]
         first_gap = (self.m.get("gaps") or [{}])[0]
@@ -390,18 +305,18 @@ class TemplateWriterModel:
         gap_q = first_gap.get("query", "the comparison questions in the gap list")
         quick_wins = [
             {
-                "title": "Publish direct answers for gap questions",
+                "title": "Build a comparison hub",
                 "text": (
-                    f'Create a page that answers "{gap_q}" in the first paragraph, with a '
-                    f"plain comparison table that AI answers can quote."
+                    f"Publish honest comparison pages that place {co} next to {leader} and "
+                    "other options, with clear criteria and short summaries AI answers can quote."
                 ),
                 "finding": 1,
             },
             {
-                "title": "Build a comparison hub",
+                "title": "Answer the gap questions directly",
                 "text": (
-                    f"Publish honest comparison pages that place {co} next to {leader} and "
-                    "other options, with clear criteria and short summaries."
+                    f'Create a page that answers "{gap_q}" in its first paragraph, followed by '
+                    "a plain comparison table."
                 ),
                 "finding": 2,
             },
@@ -409,8 +324,8 @@ class TemplateWriterModel:
                 "title": f"Earn coverage on {top.get('domain', 'top review sites')}",
                 "text": (
                     f"Pitch {top.get('domain', 'the most cited review site')} with product "
-                    "updates and data so the sources AI engines already trust include "
-                    f"{co}."
+                    "updates and customer data, so the sources AI engines already trust "
+                    f"include {co}."
                 ),
                 "finding": 3,
             },

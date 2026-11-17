@@ -36,7 +36,7 @@ AI answers change between runs, even for the same question. A single number woul
 ```
 company file ──> buyer questions ──> human review ──> run on 4 engines ──> analysis ──> metrics.json ──> report
                  (no brand names)    (required)       (web search on)     (mentions,                    (one page,
-                                                                           citations)                    plus outreach)
+                                                                           citations)                    HTML and PDF)
 ```
 
 1. **Company file.** A short YAML file names the company, its aliases, category, target buyer and 2 to 3 competitors.
@@ -45,7 +45,7 @@ company file ──> buyer questions ──> human review ──> run on 4 engin
 4. **Runs.** Each question runs several times on each engine as an independent call with no shared history.
 5. **Analysis.** The tool finds brand mentions and cited sources in every answer.
 6. **Metrics.** Every number goes into `metrics.json`, the single source of truth.
-7. **Report.** A one-page HTML and PDF report, plus a short outreach message. An automated check confirms that every number in the text exists in `metrics.json`.
+7. **Report.** A one-page HTML and PDF report. An automated check confirms that every number in the report exists in `metrics.json`.
 
 ## Engines
 
@@ -125,7 +125,7 @@ Limitations, stated plainly:
 - [x] Buyer question generation with brand-name checks and human approval
 - [x] Findings and quick wins, with automated number validation
 - [x] Writing-rule checks that fail the build on violations
-- [ ] One-page HTML and PDF report, plus outreach message
+- [x] One-page HTML and PDF report
 - [ ] Sample audit for a fictional company, with screenshot
 
 ## How I built this

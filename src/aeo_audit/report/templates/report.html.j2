@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ company }} AI Search Visibility Snapshot</title>
+<style>
+  :root {
+    --accent: {{ accent }};
+    --ink: #111827;
+    --muted: #4B5563;
+    --faint: #6B7280;
+    --rule: #E5E7EB;
+    --panel: #F9FAFB;
+  }
+  @page { size: Letter; margin: 0.45in 0.55in; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #FFFFFF; color: var(--ink); }
+  body { font-family: {{ font_family | safe }}; font-size: 9.6pt; line-height: 1.38; }
+  .page { max-width: 7.4in; margin: 0 auto; }
+  header { display: flex; justify-content: space-between; align-items: flex-end;
+           border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 12px; }
+  h1 { font-size: 17pt; line-height: 1.15; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+  .byline { text-align: right; font-size: 8.4pt; color: var(--muted); }
+  .byline strong { color: var(--ink); font-weight: 600; }
+  h2 { font-size: 10.2pt; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent);
+       margin: 0 0 6px; font-weight: 700; }
+  section { margin-bottom: 12px; }
+  .scores { display: grid; grid-template-columns: repeat({{ scores|length }}, 1fr); gap: 8px; }
+  .score { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; }
+  .score.company { border-color: var(--accent); background: #FFFFFF; box-shadow: inset 4px 0 0 var(--accent); }
+  .score .name { font-size: 8.6pt; color: var(--muted); font-weight: 600; }
+  .score .value { font-size: 19pt; font-weight: 700; line-height: 1.1; margin-top: 2px; }
+  .score.company .value { color: var(--accent); }
+  .score .range { font-size: 8.2pt; color: var(--faint); }
+  .caption { font-size: 8.2pt; color: var(--faint); margin-top: 4px; }
+  .chart svg { display: block; width: 100%; height: auto; }
+  .items { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .items li { display: grid; grid-template-columns: 20px 1fr; gap: 6px; }
+  .tag { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+         border-radius: 50%; background: var(--accent); color: #FFFFFF; font-size: 8pt; font-weight: 700; }
+  .tag.outline { background: #FFFFFF; color: var(--accent); border: 1.5px solid var(--accent); }
+  .items .title { font-weight: 700; }
+  .items .ref { color: var(--faint); font-size: 8.2pt; }
+  footer { border-top: 1px solid var(--rule); padding-top: 6px; font-size: 7.4pt; line-height: 1.35;
+           color: var(--muted); }
+  footer h3 { font-size: 7.6pt; margin: 0 0 2px; color: var(--ink); text-transform: uppercase; letter-spacing: 0.05em; }
+  footer ul { margin: 2px 0 0; padding-left: 14px; }
+  footer p { margin: 0 0 3px; }
+  .cols { display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px; }
+  @media screen { body { padding: 28px 0; } }
+  @media (max-width: 640px) {
+    .page { padding: 0 16px; }
+    header { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .byline { text-align: left; }
+    .scores { grid-template-columns: repeat(2, 1fr); }
+    .cols { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div>
+      <h1>{{ company }} AI Search Visibility Snapshot</h1>
+      <div class="caption">{{ run_date }}{% if mock %} · Sample report with fictional data{% endif %}</div>
+    </div>
+    <div class="byline">
+      Prepared by <strong>{{ author.name }}</strong><br>
+      {% if author.email %}{{ author.email }} · {% endif %}{{ author.linkedin_display }}
+    </div>
+  </header>
+
+  <section>
+    <h2>How often each brand appears in AI answers</h2>
+    <div class="scores">
+      {% for s in scores %}
+      <div class="score{% if s.is_company %} company{% endif %}">
+        <div class="name">{{ s.name }}</div>
+        <div class="value">{{ s.mean }}%</div>
+        <div class="range">{{ s.min }}% to {{ s.max }}% across runs</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="caption">Mention rate: share of AI answers that name the brand, averaged across runs, with the lowest and highest run.</div>
+  </section>
+
+  <section class="chart">
+    <h2>Share of voice by engine</h2>
+    {{ chart_svg | safe }}
+    <div class="caption">Share of voice: each brand's mentions as a share of all tracked-brand mentions. A brand counts once per answer.</div>
+  </section>
+
+  <section>
+    <h2>Findings</h2>
+    <ul class="items">
+      {% for f in findings %}
+      <li><span class="tag">{{ f.label }}</span><div><span class="title">{{ f.title }}.</span> {{ f.text }}</div></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Quick wins</h2>
+    <ul class="items">
+      {% for q in quick_wins %}
+      <li><span class="tag outline">{{ q.finding_label }}</span><div><span class="title">{{ q.title }}.</span> {{ q.text }} <span class="ref">Supports finding {{ q.finding_label }}.</span></div></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <footer>
+    <div class="cols">
+      <div>
+        <h3>Methodology</h3>
+        <p><strong>Engines tested:</strong> {% for e in engines_tested %}{{ e.display_name }} ({{ e.model }}, web search {{ "on" if e.search_enabled else "off" }}){% if not loop.last %}; {% endif %}{% endfor %}.{% if engines_not_tested %} <strong>Not tested:</strong> {% for e in engines_not_tested %}{{ e.display_name }} ({{ e.reason }}){% if not loop.last %}; {% endif %}{% endfor %}.{% endif %}</p>
+        <p><strong>Run:</strong> {{ run_date }}. {{ queries }} unbranded buyer questions, {{ runs_per_query }} runs per question on each engine, each run an independent call. {{ calls_ok }} successful calls; {{ calls_failed }} failed calls excluded from all metrics.</p>
+        <p>{{ classifier_note }} Every number in this report comes from the audit's metrics file.</p>
+      </div>
+      <div>
+        <h3>Limitations</h3>
+        <ul>
+          <li>API results can differ from consumer apps, which may personalize answers or use different models and search settings.</li>
+          <li>Google AI Overviews is not covered.</li>
+          <li>Results are a point-in-time snapshot and vary between runs.</li>
+          {% if engines_not_tested %}<li>Engines listed as not tested were skipped and are not reflected in these results.</li>{% endif %}
+          {% if mock %}<li>This sample uses fictional companies and pre-written answers (mock mode). It does not describe any real company.</li>{% endif %}
+        </ul>
+      </div>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Fictional sample company for mock mode. Every name and website is invented.
+company_name: Ledgerly
+domain: ledgerly.example
+aliases:
+- Ledgerly Treasury
+category: treasury management software
+target_buyer: CFOs and treasurers at mid-market companies
+competitors:
+- name: Cashvane
+  domain: cashvane.example
+  aliases: []
+- name: Treasurio
+  domain: treasurio.example
+  aliases:
+  - Treasurio Cloud
+- name: Fundwell
+  domain: fundwell.example
+  aliases: []
+runs_per_query: 3
+query_count: 20
+fictional: true
