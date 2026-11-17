@@ -229,3 +229,30 @@ def test_sample_company_is_fictional() -> None:
     assert data["fictional"] is True
     domains = [data["domain"], *(c["domain"] for c in data["competitors"])]
     assert all(d.endswith(".example") for d in domains)
+
+
+def test_real_run_with_one_engine_key_and_no_claude_key_still_reports(
+    sample_project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real run with only some keys must still produce a report (findings from templates)."""
+    from aeo_audit.config import load_author, load_company, load_engines, load_report_config
+    from aeo_audit.paths import ProjectPaths
+    from aeo_audit.queries import load_queries
+    from aeo_audit.reporting import build_report
+    from aeo_audit.runner import RunStore
+
+    paths = ProjectPaths(sample_project)
+    CliRunner().invoke(app, ["run", "ledgerly", "--mock", "--yes", "--engines", "perplexity",
+                             "--root", str(sample_project)])  # fmt: skip
+    store = RunStore(next((sample_project / "output" / "ledgerly").iterdir()))
+    store.update_manifest(mock=False)  # treat the saved answers as a real run
+    out = build_report(
+        store=store, company=load_company("ledgerly", paths),
+        queries=load_queries(paths.queries_file("ledgerly")).queries,
+        engines_cfg=load_engines(paths), author=load_author(paths),
+        report_cfg=load_report_config(paths), keys={"PERPLEXITY_API_KEY": "x"}, make_pdf=False,
+    )  # fmt: skip
+    assert any("ANTHROPIC_API_KEY is not set" in w for w in out.warnings)
+    text = visible_text(out.html_path.read_text())
+    assert "Findings were generated from templates." in text
+    assert "Not tested: OpenAI (not selected for this run)" in text

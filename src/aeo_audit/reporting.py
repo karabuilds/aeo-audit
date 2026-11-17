@@ -109,6 +109,7 @@ def build_report(
 ) -> ReportOutput:
     manifest = store.manifest()
     mock = bool(manifest.get("mock"))
+    template_warning: str | None = None
     results = [r for r in store.load_results().values() if r.query_id in {q.id for q in queries}]
     if not results:
         raise ReportError(f"No saved results in {store.folder}.")
@@ -137,9 +138,13 @@ def build_report(
         writer_model = ClaudeJSON(claude_key, engines_cfg.helpers.writer_model)
         writer_name = engines_cfg.helpers.writer_model
     else:
-        raise ReportError(
-            f"Writing findings uses Claude. Set {engines_cfg.helpers.api_key_env} in .env. "
-            "No API calls to the measured engines are needed."
+        # No Claude key: findings come from the offline template, which uses the same
+        # verified numbers. The report says so in its methodology section.
+        writer_model = None
+        writer_name = "offline templates"
+        template_warning = (
+            f"{engines_cfg.helpers.api_key_env} is not set, so findings were written from "
+            "templates instead of Claude. Add the key and rerun the report for tailored findings."
         )
 
     metrics = compute_metrics(
@@ -178,7 +183,7 @@ def build_report(
     pdf_path: Path | None = None
     pages: int | None = None
     note: str | None = None
-    warnings: list[str] = []
+    warnings: list[str] = [template_warning] if template_warning else []
     if make_pdf:
         try:
             pdf_path = store.folder / "report.pdf"

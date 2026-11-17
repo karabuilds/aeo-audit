@@ -217,7 +217,8 @@ def run(
 
     console.print(
         f"[bold]{company.company_name}[/]: {len(qf.queries)} questions x "
-        f"{company.runs_per_query} runs x {len(selection.engines)} engines = {total_calls} calls"
+        f"{company.runs_per_query} runs x {len(selection.engines)} "
+        f"engine{'s' if len(selection.engines) != 1 else ''} = {total_calls} calls"
         + (" [cyan](mock mode, no cost)[/]" if mock else "")
     )
     if resumed:

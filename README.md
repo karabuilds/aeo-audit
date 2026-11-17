@@ -106,7 +106,7 @@ The report, metrics and raw answers are written to `output/ledgerly/<date>/`.
 
 ### Real run
 
-1. Copy `.env.example` to `.env` and add the API keys for the engines you want to test. Question and findings writing uses `ANTHROPIC_API_KEY`.
+1. Copy `.env.example` to `.env` and add the API keys for the engines you want to test. Writing questions and findings uses `ANTHROPIC_API_KEY`. Without it, you can write the questions file by hand, and findings are generated from templates using the same verified numbers.
 2. Create and fill in a company file:
 
    ```bash

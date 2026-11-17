@@ -95,6 +95,13 @@ def display_date(iso: str) -> str:
     return f"{d:%B} {d.day}, {d.year}"
 
 
+def writer_note(run: dict[str, Any]) -> str:
+    model = run.get("writer_model") or ""
+    if model.startswith("offline templates"):
+        return "Findings were generated from templates."
+    return f"Findings were written by {model} from the metrics alone."
+
+
 def build_context(
     metrics: dict[str, Any],
     insights: Insights,
@@ -147,6 +154,7 @@ def build_context(
         "calls_ok": run["calls"]["successful"],
         "calls_failed": run["calls"]["failed"],
         "classifier_note": classifier_note(run),
+        "writer_note": writer_note(run),
     }
 
 

@@ -115,7 +115,7 @@
         <h3>Methodology</h3>
         <p><strong>Engines tested:</strong> {% for e in engines_tested %}{{ e.display_name }} ({{ e.model }}, web search {{ "on" if e.search_enabled else "off" }}){% if not loop.last %}; {% endif %}{% endfor %}.{% if engines_not_tested %} <strong>Not tested:</strong> {% for e in engines_not_tested %}{{ e.display_name }} ({{ e.reason }}){% if not loop.last %}; {% endif %}{% endfor %}.{% endif %}</p>
         <p><strong>Run:</strong> {{ run_date }}. {{ queries }} unbranded buyer questions, {{ runs_per_query }} runs per question on each engine, each run an independent call. {{ calls_ok }} successful calls; {{ calls_failed }} failed calls excluded from all metrics.</p>
-        <p>{{ classifier_note }} Every number in this report comes from the audit's metrics file.</p>
+        <p>{{ classifier_note }} {{ writer_note }} Every number in this report comes from the audit's metrics file.</p>
       </div>
       <div>
         <h3>Limitations</h3>
