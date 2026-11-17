@@ -18,8 +18,10 @@ from aeo_audit import __version__
 from aeo_audit.config import ConfigError, load_company, load_engines, load_report_config
 from aeo_audit.cost import EngineEstimate, estimate_engine, helper_estimate
 from aeo_audit.engines.registry import build_engines, load_keys, parse_engine_list
+from aeo_audit.llm import ClaudeJSON, JSONModel, LLMError
 from aeo_audit.paths import ProjectPaths, validate_slug
-from aeo_audit.queries import approve, load_queries
+from aeo_audit.queries import approve, load_queries, save_queries
+from aeo_audit.querygen import QueryGenerationError, TemplateQuestionModel, generate_queries
 from aeo_audit.runner import execute, find_or_create_run, plan_jobs
 
 app = typer.Typer(
@@ -314,3 +316,82 @@ def _execute_with_progress(
                 on_result=on_result,
             )
         )
+
+
+# ------------------------------------------------------------------ queries
+
+
+@app.command()
+def queries(
+    slug: Annotated[str, typer.Argument(help="Company slug, for example acme-treasury.")],
+    force: Annotated[
+        bool,
+        typer.Option("--force", help="Replace an existing questions file, even an approved one."),
+    ] = False,
+    mock: Annotated[
+        bool,
+        typer.Option("--mock", help="Use offline templates (fictional sample company only)."),
+    ] = False,
+    root: RootOption = None,
+) -> None:
+    """Generate unbranded buyer questions for review. Questions never run until approved."""
+    paths = ProjectPaths.discover(root)
+    try:
+        company = load_company(slug, paths)
+        engines_cfg = load_engines(paths)
+    except ConfigError as exc:
+        raise _config_fail(exc) from exc
+    qpath = paths.queries_file(slug)
+    if qpath.exists() and not force:
+        try:
+            existing = load_queries(qpath)
+        except ConfigError as exc:
+            raise _config_fail(exc) from exc
+        if existing.is_approved:
+            console.print(
+                f"[green]{qpath.name} is already approved[/] and will be reused so results stay "
+                "comparable across runs. Use --force to generate new questions."
+            )
+        else:
+            console.print(
+                f"{qpath.name} already exists and is waiting for your review. Edit it, then run:\n"
+                f"  [bold]aeo-audit run {slug} --approve[/]\n"
+                "Use --force to throw it away and generate new questions."
+            )
+        return
+
+    if mock:
+        if not company.fictional:
+            raise _fail("--mock only works with the fictional sample company.")
+        model: JSONModel = TemplateQuestionModel(company)
+        model_name = "offline templates (mock mode)"
+    else:
+        key = load_keys(paths.root).get(engines_cfg.helpers.api_key_env)
+        if not key:
+            raise _fail(
+                f"Question generation uses Claude. Set {engines_cfg.helpers.api_key_env} in .env, "
+                "or write the questions file by hand."
+            )
+        model = ClaudeJSON(key, engines_cfg.helpers.writer_model)
+        model_name = engines_cfg.helpers.writer_model
+
+    console.print(f"Writing {company.query_count} buyer questions for {company.company_name}...")
+    try:
+        qf = generate_queries(company, model, model_name)
+    except (QueryGenerationError, LLMError) as exc:
+        raise _fail(str(exc)) from exc
+    save_queries(qpath, qf, slug)
+
+    table = Table(title=f"Questions for review ({qpath.name})")
+    table.add_column("ID")
+    table.add_column("Intent")
+    table.add_column("Topic")
+    table.add_column("Question")
+    for q in qf.queries:
+        table.add_row(q.id, q.intent, q.topic or "", q.text)
+    console.print(table)
+    console.print(
+        f"\n[bold yellow]Stop here and review.[/] Edit, replace or delete any question in "
+        f"{qpath}.\nWhen you are happy with the list, run:\n"
+        f"  [bold]aeo-audit run {slug} --approve[/]"
+    )

@@ -122,7 +122,7 @@ Limitations, stated plainly:
 - [x] Metrics with run-to-run ranges, gaps, intent and topic breakdowns
 - [x] Engine adapters for OpenAI, Anthropic, Gemini and Perplexity
 - [x] Runner with caching, resume, retries, cost estimates and a budget cap
-- [ ] Buyer question generation with brand-name checks and human approval
+- [x] Buyer question generation with brand-name checks and human approval
 - [ ] Findings and quick wins, with automated number validation
 - [ ] Writing-rule checks that fail the build on violations
 - [ ] One-page HTML and PDF report, plus outreach message
