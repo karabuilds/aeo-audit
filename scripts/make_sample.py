@@ -130,9 +130,10 @@ def answer(rng: random.Random, intent: str, engine: str) -> tuple[str, list[str]
     return " ".join(lines), citations
 
 
-def main() -> None:
+def main(root: Path = ROOT) -> None:
     rng = random.Random(SEED)
-    companies = ROOT / "companies"
+    companies = root / "companies"
+    companies.mkdir(parents=True, exist_ok=True)
     (companies / "ledgerly.yaml").write_text(
         "# Fictional sample company for mock mode. Every name and website is invented.\n"
         + yaml.safe_dump(COMPANY, sort_keys=False),
@@ -140,7 +141,7 @@ def main() -> None:
     )
 
     from aeo_audit.models import Query
-    from aeo_audit.queries import QueriesFile, approve, save_queries
+    from aeo_audit.queries import QueriesFile, save_queries
 
     qf = QueriesFile(
         company=COMPANY["company_name"],
@@ -151,11 +152,12 @@ def main() -> None:
             for i, (intent, text) in enumerate(QUESTIONS, start=1)
         ],
     )
-    qpath = companies / "ledgerly.queries.yaml"
-    save_queries(qpath, qf, "ledgerly")
-    approve(qpath, "ledgerly")
+    qf.approved = True
+    qf.approved_at = "2026-11-17T00:00:00+00:00"  # fixed, so the sample is reproducible
+    qf.approved_hash = qf.content_hash()
+    save_queries(companies / "ledgerly.queries.yaml", qf, "ledgerly")
 
-    out = ROOT / "tests" / "fixtures" / "mock" / "ledgerly"
+    out = root / "tests" / "fixtures" / "mock" / "ledgerly"
     out.mkdir(parents=True, exist_ok=True)
     failures = {("gemini", "q07", 2), ("anthropic", "q15", 3)}  # simulated failed calls
     for engine in ENGINES:
@@ -175,4 +177,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    main(Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT)

@@ -1,0 +1,17 @@
+{
+  "slug": "ledgerly",
+  "company": "Ledgerly",
+  "started_at": "2026-11-17T03:53:49+00:00",
+  "queries_hash": "fc8375933a0f57a3",
+  "mock": true,
+  "status": "complete",
+  "runs_per_query": 3,
+  "engines_planned": [
+    "openai",
+    "anthropic",
+    "gemini",
+    "perplexity"
+  ],
+  "engines_skipped": {},
+  "completed_at": "2026-11-17T03:53:49+00:00"
+}

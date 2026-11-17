@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "title": "Ledgerly trails Cashvane in AI answers",
+      "text": "Ledgerly appears in 40.3% of AI answers, ranging from 39.2% to 42.5% across runs. Cashvane appears in 61.8%, which shows clear room to grow."
+    },
+    {
+      "title": "Comparison questions are the fastest area to win",
+      "text": "In comparison questions, Ledgerly appears in 10.4% of answers, while Cashvane appears in 77.1%."
+    },
+    {
+      "title": "Third-party sources shape the answers",
+      "text": "AI answers cite softwarecompare.example in 50.4% of answers. Ledgerly's own site is cited in 9.3% of answers."
+    }
+  ],
+  "quick_wins": [
+    {
+      "title": "Build a comparison hub",
+      "text": "Publish honest comparison pages that place Ledgerly next to Cashvane and other options, with clear criteria and short summaries AI answers can quote.",
+      "finding": 1
+    },
+    {
+      "title": "Answer the gap questions directly",
+      "text": "Create a page that answers \"Are cloud treasury tools better than bank portals?\" in its first paragraph, followed by a plain comparison table.",
+      "finding": 2
+    },
+    {
+      "title": "Earn coverage on softwarecompare.example",
+      "text": "Pitch softwarecompare.example with product updates and customer data, so the sources AI engines already trust include Ledgerly.",
+      "finding": 3
+    }
+  ],
+  "attempts": 1,
+  "model": "offline templates (mock mode)"
+}

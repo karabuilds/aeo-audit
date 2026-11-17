@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerly AI Search Visibility Snapshot</title>
+<style>
+  :root {
+    --accent: #0F766E;
+    --ink: #111827;
+    --muted: #4B5563;
+    --faint: #6B7280;
+    --rule: #E5E7EB;
+    --panel: #F9FAFB;
+  }
+  @page { size: Letter; margin: 0.45in 0.55in; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #FFFFFF; color: var(--ink); }
+  body { font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-size: 9.6pt; line-height: 1.38; }
+  .page { max-width: 7.4in; margin: 0 auto; }
+  header { display: flex; justify-content: space-between; align-items: flex-end;
+           border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 12px; }
+  h1 { font-size: 17pt; line-height: 1.15; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+  .byline { text-align: right; font-size: 8.4pt; color: var(--muted); }
+  .byline strong { color: var(--ink); font-weight: 600; }
+  h2 { font-size: 10.2pt; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent);
+       margin: 0 0 6px; font-weight: 700; }
+  section { margin-bottom: 12px; }
+  .scores { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .score { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; }
+  .score.company { border-color: var(--accent); background: #FFFFFF; box-shadow: inset 4px 0 0 var(--accent); }
+  .score .name { font-size: 8.6pt; color: var(--muted); font-weight: 600; }
+  .score .value { font-size: 19pt; font-weight: 700; line-height: 1.1; margin-top: 2px; }
+  .score.company .value { color: var(--accent); }
+  .score .range { font-size: 8.2pt; color: var(--faint); }
+  .caption { font-size: 8.2pt; color: var(--faint); margin-top: 4px; }
+  .chart svg { display: block; width: 100%; height: auto; }
+  .items { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .items li { display: grid; grid-template-columns: 20px 1fr; gap: 6px; }
+  .tag { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+         border-radius: 50%; background: var(--accent); color: #FFFFFF; font-size: 8pt; font-weight: 700; }
+  .tag.outline { background: #FFFFFF; color: var(--accent); border: 1.5px solid var(--accent); }
+  .items .title { font-weight: 700; }
+  .items .ref { color: var(--faint); font-size: 8.2pt; }
+  footer { border-top: 1px solid var(--rule); padding-top: 6px; font-size: 7.4pt; line-height: 1.35;
+           color: var(--muted); }
+  footer h3 { font-size: 7.6pt; margin: 0 0 2px; color: var(--ink); text-transform: uppercase; letter-spacing: 0.05em; }
+  footer ul { margin: 2px 0 0; padding-left: 14px; }
+  footer p { margin: 0 0 3px; }
+  .cols { display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px; }
+  @media screen { body { padding: 28px 0; } }
+  @media (max-width: 640px) {
+    .page { padding: 0 16px; }
+    header { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .byline { text-align: left; }
+    .scores { grid-template-columns: repeat(2, 1fr); }
+    .cols { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div>
+      <h1>Ledgerly AI Search Visibility Snapshot</h1>
+      <div class="caption">November 17, 2026 · Sample report with fictional data</div>
+    </div>
+    <div class="byline">
+      Prepared by <strong>Kara Hartnett</strong><br>
+linkedin.com/in/kara-hartnett
+    </div>
+  </header>
+
+  <section>
+    <h2>How often each brand appears in AI answers</h2>
+    <div class="scores">
+      <div class="score company">
+        <div class="name">Ledgerly</div>
+        <div class="value">40.3%</div>
+        <div class="range">39.2% to 42.5% across runs</div>
+      </div>
+      <div class="score">
+        <div class="name">Cashvane</div>
+        <div class="value">61.8%</div>
+        <div class="range">60% to 63.3% across runs</div>
+      </div>
+      <div class="score">
+        <div class="name">Treasurio</div>
+        <div class="value">49.1%</div>
+        <div class="range">43% to 55% across runs</div>
+      </div>
+      <div class="score">
+        <div class="name">Fundwell</div>
+        <div class="value">23.1%</div>
+        <div class="range">18.8% to 29.1% across runs</div>
+      </div>
+    </div>
+    <div class="caption">Mention rate: share of AI answers that name the brand, averaged across runs, with the lowest and highest run.</div>
+  </section>
+
+  <section class="chart">
+    <h2>Share of voice by engine</h2>
+    <svg viewBox="0 0 720 254" role="img" aria-label="Share of voice by engine" xmlns="http://www.w3.org/2000/svg" font-family="inherit"><rect x="118" y="4" width="10" height="10" rx="2" fill="#0F766E"/><text x="132" y="13" font-size="11" fill="#374151">Ledgerly</text><rect x="198" y="4" width="10" height="10" rx="2" fill="#4B5563"/><text x="212" y="13" font-size="11" fill="#374151">Cashvane</text><rect x="278" y="4" width="10" height="10" rx="2" fill="#9CA3AF"/><text x="292" y="13" font-size="11" fill="#374151">Treasurio</text><rect x="365" y="4" width="10" height="10" rx="2" fill="#D1D5DB"/><text x="379" y="13" font-size="11" fill="#374151">Fundwell</text><text x="0" y="49.0" font-size="11.5" font-weight="600" fill="#111827">OpenAI</text><rect x="118" y="22" width="313.5" height="10" rx="2" fill="#0F766E"/><text x="435.5" y="31" font-size="9.5" fill="#374151">23%</text><rect x="118" y="34" width="496.2" height="10" rx="2" fill="#4B5563"/><text x="618.2" y="43" font-size="9.5" fill="#374151">36.4%</text><rect x="118" y="46" width="414.4" height="10" rx="2" fill="#9CA3AF"/><text x="536.4" y="55" font-size="9.5" fill="#374151">30.4%</text><rect x="118" y="58" width="139.1" height="10" rx="2" fill="#D1D5DB"/><text x="261.1" y="67" font-size="9.5" fill="#374151">10.2%</text><text x="0" y="107.0" font-size="11.5" font-weight="600" fill="#111827">Anthropic Claude</text><rect x="118" y="80" width="342.2" height="10" rx="2" fill="#0F766E"/><text x="464.2" y="89" font-size="9.5" fill="#374151">25.1%</text><rect x="118" y="92" width="471.7" height="10" rx="2" fill="#4B5563"/><text x="593.7" y="101" font-size="9.5" fill="#374151">34.6%</text><rect x="118" y="104" width="387.2" height="10" rx="2" fill="#9CA3AF"/><text x="509.2" y="113" font-size="9.5" fill="#374151">28.4%</text><rect x="118" y="116" width="163.6" height="10" rx="2" fill="#D1D5DB"/><text x="285.6" y="125" font-size="9.5" fill="#374151">12%</text><text x="0" y="165.0" font-size="11.5" font-weight="600" fill="#111827">Google Gemini</text><rect x="118" y="138" width="259.0" height="10" rx="2" fill="#0F766E"/><text x="381.0" y="147" font-size="9.5" fill="#374151">19%</text><rect x="118" y="150" width="516.7" height="10" rx="2" fill="#4B5563"/><text x="638.7" y="159" font-size="9.5" fill="#374151">37.9%</text><rect x="118" y="162" width="394.0" height="10" rx="2" fill="#9CA3AF"/><text x="516.0" y="171" font-size="9.5" fill="#374151">28.9%</text><rect x="118" y="174" width="194.9" height="10" rx="2" fill="#D1D5DB"/><text x="316.9" y="183" font-size="9.5" fill="#374151">14.3%</text><text x="0" y="223.0" font-size="11.5" font-weight="600" fill="#111827">Perplexity</text><rect x="118" y="196" width="344.9" height="10" rx="2" fill="#0F766E"/><text x="466.9" y="205" font-size="9.5" fill="#374151">25.3%</text><rect x="118" y="208" width="454.0" height="10" rx="2" fill="#4B5563"/><text x="576.0" y="217" font-size="9.5" fill="#374151">33.3%</text><rect x="118" y="220" width="354.4" height="10" rx="2" fill="#9CA3AF"/><text x="476.4" y="229" font-size="9.5" fill="#374151">26%</text><rect x="118" y="232" width="209.9" height="10" rx="2" fill="#D1D5DB"/><text x="331.9" y="241" font-size="9.5" fill="#374151">15.4%</text></svg>
+    <div class="caption">Share of voice: each brand's mentions as a share of all tracked-brand mentions. A brand counts once per answer.</div>
+  </section>
+
+  <section>
+    <h2>Findings</h2>
+    <ul class="items">
+      <li><span class="tag">A</span><div><span class="title">Ledgerly trails Cashvane in AI answers.</span> Ledgerly appears in 40.3% of AI answers, ranging from 39.2% to 42.5% across runs. Cashvane appears in 61.8%, which shows clear room to grow.</div></li>
+      <li><span class="tag">B</span><div><span class="title">Comparison questions are the fastest area to win.</span> In comparison questions, Ledgerly appears in 10.4% of answers, while Cashvane appears in 77.1%.</div></li>
+      <li><span class="tag">C</span><div><span class="title">Third-party sources shape the answers.</span> AI answers cite softwarecompare.example in 50.4% of answers. Ledgerly&#39;s own site is cited in 9.3% of answers.</div></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Quick wins</h2>
+    <ul class="items">
+      <li><span class="tag outline">A</span><div><span class="title">Build a comparison hub.</span> Publish honest comparison pages that place Ledgerly next to Cashvane and other options, with clear criteria and short summaries AI answers can quote. <span class="ref">Supports finding A.</span></div></li>
+      <li><span class="tag outline">B</span><div><span class="title">Answer the gap questions directly.</span> Create a page that answers &#34;Are cloud treasury tools better than bank portals?&#34; in its first paragraph, followed by a plain comparison table. <span class="ref">Supports finding B.</span></div></li>
+      <li><span class="tag outline">C</span><div><span class="title">Earn coverage on softwarecompare.example.</span> Pitch softwarecompare.example with product updates and customer data, so the sources AI engines already trust include Ledgerly. <span class="ref">Supports finding C.</span></div></li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="cols">
+      <div>
+        <h3>Methodology</h3>
+        <p><strong>Engines tested:</strong> OpenAI (gpt-6-luna, web search on); Anthropic Claude (claude-haiku-5-5, web search on); Google Gemini (gemini-3.8-flash, web search on); Perplexity (perplexity/sonar, web search on).</p>
+        <p><strong>Run:</strong> November 17, 2026. 20 unbranded buyer questions, 3 runs per question on each engine, each run an independent call. 238 successful calls; 2 failed calls excluded from all metrics.</p>
+        <p>Brand names that are also common words required supporting context to count. Every number in this report comes from the audit's metrics file.</p>
+      </div>
+      <div>
+        <h3>Limitations</h3>
+        <ul>
+          <li>API results can differ from consumer apps, which may personalize answers or use different models and search settings.</li>
+          <li>Google AI Overviews is not covered.</li>
+          <li>Results are a point-in-time snapshot and vary between runs.</li>
+<li>This sample uses fictional companies and pre-written answers (mock mode). It does not describe any real company.</li>        </ul>
+      </div>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

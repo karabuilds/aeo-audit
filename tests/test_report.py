@@ -198,3 +198,34 @@ def test_pdf_fits_on_one_page(sample_project: Path) -> None:
     pdf = next((sample_project / "output" / "ledgerly").iterdir()) / "report.pdf"
     assert pdf.exists()
     assert pdf_page_count(pdf) == 1
+
+
+def test_committed_sample_fixtures_match_the_generator(tmp_path: Path) -> None:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "make_sample", REPO_ROOT / "scripts" / "make_sample.py"
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.main(tmp_path)
+    for engine in ("openai", "anthropic", "gemini", "perplexity"):
+        fresh = (
+            tmp_path / "tests" / "fixtures" / "mock" / "ledgerly" / f"{engine}.jsonl"
+        ).read_text()
+        committed = (
+            REPO_ROOT / "tests" / "fixtures" / "mock" / "ledgerly" / f"{engine}.jsonl"
+        ).read_text()
+        assert fresh == committed, (
+            f"{engine} fixtures are out of date: run python scripts/make_sample.py"
+        )
+
+
+def test_sample_company_is_fictional() -> None:
+    import yaml
+
+    data = yaml.safe_load((REPO_ROOT / "companies" / "ledgerly.yaml").read_text())
+    assert data["fictional"] is True
+    domains = [data["domain"], *(c["domain"] for c in data["competitors"])]
+    assert all(d.endswith(".example") for d in domains)
