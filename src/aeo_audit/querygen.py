@@ -16,14 +16,14 @@ from aeo_audit.queries import QueriesFile
 
 MAX_ROUNDS = 4
 MIN_WORDS = 4
-MAX_WORDS = 60
+MAX_WORDS = 30
 
 INTENT_GUIDE: dict[str, str] = {
-    "discovery": "The person wants options and explains who they are or what they need.",
-    "problem": "The person describes something going wrong for them, in their own words.",
-    "comparison": "The person is torn between two approaches and says what they care about.",
-    "use_case": "The person has a specific job to get done and describes their situation.",
-    "criteria": "The person is about to choose and asks what to watch out for or compare.",
+    "discovery": 'Asks for options, for example "what\'s a good X for Y".',
+    "problem": 'Asks how to fix or avoid a problem, for example "how do I avoid Z".',
+    "comparison": 'Weighs two approaches, for example "is it better to A or B".',
+    "use_case": 'Asks whether something can do a specific job, for example "can I do X with Y".',
+    "criteria": 'Asks how to judge options, for example "do X actually work".',
 }
 
 
@@ -115,14 +115,16 @@ SCHEMA: dict[str, Any] = {
 }
 
 SYSTEM = (
-    "You write the messages real people type into an AI assistant like ChatGPT when they need "
-    "help with a decision. These are conversational, not search queries or blog titles.\n"
-    "- Write in the first person, the way someone talks to a knowledgeable friend.\n"
-    "- Include the person's situation: a frustration, a goal, a constraint, or a detail such as "
-    "a credit score, a budget, a pay schedule or where they shop.\n"
-    "- One to three short sentences, ending with the question. Plain, casual wording.\n"
-    '- Avoid headline phrasing such as "best X for Y", "top X" or '
-    '"what should I look for in X" on its own.\n'
+    "You write the questions real people type into an AI assistant like ChatGPT when they need "
+    "help with a decision. They are short, plain questions, not search keywords and not blog "
+    "titles.\n"
+    '- Use everyday wording and contractions, the way people actually type: "what\'s a good", '
+    '"can I", "do these actually work", "is it better to".\n'
+    "- Usually one sentence of 6 to 20 words. Add a few words of context only when a real "
+    'person would, such as "with fair credit" or "for someone who shops at Walmart".\n'
+    '- No emotional openers ("I\'m sick of", "I\'m tired of") and no invented specifics '
+    "like exact credit scores, dollar amounts or ages.\n"
+    '- No headline phrasing such as "ultimate guide", "top 10" or a year.\n'
     "- Never include any brand, company, product or website name from the forbidden list, in "
     "any spelling."
 )
