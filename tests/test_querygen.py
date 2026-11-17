@@ -107,7 +107,7 @@ def test_clean_questions_pass(text: str) -> None:
 
 def test_length_rules() -> None:
     assert "is too short" in check_question("best bank?", CFG)
-    assert "is too long" in check_question(" ".join(["word"] * 31), CFG)
+    assert "is too long" in check_question(" ".join(["word"] * 61), CFG)
 
 
 class ScriptedModel:
@@ -156,6 +156,20 @@ def test_gives_up_after_repeated_failures() -> None:
     bad = {n: "Tell me about PayPal and its fees today" for n in range(1, 21)}
     with pytest.raises(QueryGenerationError, match="clean questions"):
         generate_queries(CFG, ScriptedModel([bad]), "m")
+
+
+def test_conversational_questions_with_context_pass() -> None:
+    text = (
+        "I keep getting denied for credit cards with a 640 credit score. "
+        "What can I do to get approved for one with rewards?"
+    )
+    assert check_question(text, CFG) == []
+
+
+def test_prompt_asks_for_conversational_questions() -> None:
+    from aeo_audit.querygen import SYSTEM
+
+    assert "first person" in SYSTEM and "blog titles" in SYSTEM
 
 
 def test_prompt_includes_guidance_topics_and_forbidden_terms() -> None:

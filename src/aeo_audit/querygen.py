@@ -16,14 +16,14 @@ from aeo_audit.queries import QueriesFile
 
 MAX_ROUNDS = 4
 MIN_WORDS = 4
-MAX_WORDS = 30
+MAX_WORDS = 60
 
 INTENT_GUIDE: dict[str, str] = {
-    "discovery": 'Looking for options in the category, for example "best X for Y".',
-    "problem": 'Describes a problem without naming a product type, for example "how do I fix Z".',
-    "comparison": "Compares approaches or asks for alternatives, without naming any brand.",
-    "use_case": "Asks how to get a specific job done for the buyer's situation.",
-    "criteria": 'Asks what to look for when choosing, for example "what matters most in X".',
+    "discovery": "The person wants options and explains who they are or what they need.",
+    "problem": "The person describes something going wrong for them, in their own words.",
+    "comparison": "The person is torn between two approaches and says what they care about.",
+    "use_case": "The person has a specific job to get done and describes their situation.",
+    "criteria": "The person is about to choose and asks what to watch out for or compare.",
 }
 
 
@@ -115,10 +115,16 @@ SCHEMA: dict[str, Any] = {
 }
 
 SYSTEM = (
-    "You write realistic questions that a buyer types into an AI assistant while researching "
-    "a purchase. Write in plain, natural language, the way a busy person types. Each question "
-    "is one sentence. Never include any brand, company, product or website name from the "
-    "forbidden list, in any spelling."
+    "You write the messages real people type into an AI assistant like ChatGPT when they need "
+    "help with a decision. These are conversational, not search queries or blog titles.\n"
+    "- Write in the first person, the way someone talks to a knowledgeable friend.\n"
+    "- Include the person's situation: a frustration, a goal, a constraint, or a detail such as "
+    "a credit score, a budget, a pay schedule or where they shop.\n"
+    "- One to three short sentences, ending with the question. Plain, casual wording.\n"
+    '- Avoid headline phrasing such as "best X for Y", "top X" or '
+    '"what should I look for in X" on its own.\n'
+    "- Never include any brand, company, product or website name from the forbidden list, in "
+    "any spelling."
 )
 
 
